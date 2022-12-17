@@ -77,6 +77,7 @@ begin
   end;
 end;
 
+var I: integer;
 begin
   try
     { TODO -oUser -cConsole Main : Insert code here }
@@ -91,7 +92,7 @@ begin
     write('GetItemsByTag: ');
     WriteResult;
 
-    items := GmpClub.GetItemsByCategory('Blowjobs', 1);
+    items := GmpClub.GetItems(1);
     write('GetItemsByCategory: ');
     WriteResult;
 
@@ -100,9 +101,17 @@ begin
       Full := GmpClub.GetPage(Items[0].GetUrl, true);
 
       if Full.Id <> -1 then
-        Writeln('GetPage: OK')
+        Writeln('GetPage: OK. Url: ' + Full.Url)
       else
         Writeln('GetPage: ERROR!!!');
+
+      writeln('ContentUrl: ' + Full.ContentUrl + ' Thumb: ' + Full.ThumbnailUrl);
+
+      var TagsStr: string := '';
+      for I := low(Full.Tags) to High(Full.Tags) do
+        TagsStr := TagsStr + ' | ' + Full.Tags[I];
+
+      writeln('Tags count: ' + Length(Full.Tags).ToString + ' ' + TagsStr + ' |');
 
       items := Full.RelatedItems;
       Write('GetPage RelatedItems: ');
