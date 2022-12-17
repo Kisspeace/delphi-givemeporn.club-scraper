@@ -127,9 +127,10 @@ begin
     Result := TGmpclubFullPage.new;
     Doc := Parser.ParseString(ASource);
 
+    { Meta information about video }
     var Meta: TElement := Doc.DocumentElement.GetElementByXPath('head');
     var MetaL := Meta.GetElementsByTagName('meta', 3);
-    //var MetaL: TNodeList := Meta.ChildNodes;
+
     if Assigned(Meta) then begin
       Result.Title := GetMetaAttr(MetaL, 'og:title');
       Result.ThumbnailUrl := GetMetaAttr(MetaL, 'og:image');
@@ -146,30 +147,29 @@ begin
 
     end;
 
+    { Video URL }
     var Body: TElement := Doc.DocumentElement.GetElementByTagName('body');
     var Video: TElement := Body.GetElementByID('main-video');
     if Assigned(Video) then begin
-      var source: TElement := Video.GetElementByTagName('source', 1);
+      var source: TElement := Video.GetElementByTagName('source', 20);
       if assigned(Source) then
         Result.ContentUrl := Source.GetAttribute('src');
     end;
 
-    var VidInfo: TElement := Body.GetElementByClass('video-info', true);
+    var VidInfo: TElement := Body.GetElementByClass('video-tags', true);
     if Assigned(VidInfo) then begin
 
-      var Category: TElement := VidInfo.GetElementByClass('l');
+      { Category }
+      var Category: TElement := VidInfo.GetElementByClass('category_tag');
       if Assigned(Category) then
         Result.Category := Category.GetInnerHtml;
 
-      Nodes := VidInfo.GetElementsByTagName('a');
+      { Tags }
+      Nodes := VidInfo.GetElementsByClass('tag', True);
       for i := 0 to Nodes.Count - 1 do begin
-
         var Tmp: string := Nodes[I].GetInnerHtml.Trim;
-        if ( Tmp.IndexOf('#') = 0 ) then begin
-          Tmp := Copy(Tmp, 2, Tmp.Length);
+        if (Tmp <> '...') and (Tmp <> Result.Category) then
           Result.Tags := Result.Tags + [ Tmp ];
-        end;
-
       end;
 
     end;
